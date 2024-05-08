@@ -1,0 +1,117 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+    fontFamily: {
+      'body': ['"Pretendard Variable"', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', '"Helvetica Neue"', '"Segoe UI"', '"Apple SD Gothic Neo"', '"Noto Sans KR"', '"Malgun Gothic"', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', 'sans-serif'],
+    },
+  },
+  presets: [
+    {
+    theme: {
+      colors: {
+        current: 'currentColor',
+        transparent: 'transparent',
+
+        black: '#000',
+        white: '#fff',
+
+        orange: {
+            50: '#FFF2D6',
+            100: '#FFE0A5',
+            200: '#FFC96D',
+            300: '#FFA632',
+            400: '#FF8A0A',
+            500: '#FF7100',
+            600: '#CC5102',
+            700: '#A13F0B',
+            800: '#82360C',
+            900: '#461904',
+        },
+        purple: {
+            50: '#F3E2ED',
+            100: '#EDD4E3',
+            200: '#DFB9CF',
+            300: '#C483A9',
+            400: '#B46995',
+            500: '#AF4683',
+            600: '#9C306F',
+            700: '#881C5B',
+            800: '#6F0B45',
+            900: '#530031',
+        },
+        red: {
+            50: '#FEF3F2',
+            100: '#FEE5E2',
+            200: '#FED0CA',
+            300: '#FCAFA5',
+            400: '#F88171',
+            500: '#EF5844',
+            600: '#DC3B26',
+            700: '#B92E1C',
+            800: '#992A1B',
+            900: '#7F281D',
+        },
+        amber: {
+            50: '#FFFAEB',
+            100: '#FEEFC7',
+            200: '#FEDF89',
+            300: '#FDC74C',
+            400: '#FDB735',
+            500: '#F78E09',
+            600: '#DB6804',
+            700: '#B54708',
+            800: '#93360D',
+            900: '#792D0E',
+        },
+        green: {
+            50: '#F0FDF4',
+            100: '#DDFBE7',
+            200: '#BDF5D1',
+            300: '#89ECAD',
+            400: '#4EDA81',
+            500: '#2AD167',
+            600: '#1A9F4B',
+            700: '#187D3E',
+            800: '#186335',
+            900: '#16512D',
+        },
+        blue: {
+            50: '#EFF8FF',
+            100: '#DAEEFF',
+            200: '#BEE1FF',
+            300: '#91D0FF',
+            400: '#5DB5FD',
+            500: '#3895FA',
+            600: '#2176EF',
+            700: '#195FDC',
+            800: '#1B4DB2',
+            900: '#1C448C',
+        },
+        gray: {
+            50: '#F0F0F0',
+            100: '#E4E4E4',
+            200: '#D1D1D1',
+            300: '#B8B8B8',
+            400: '#A3A3A3',
+            500: '#8C8C8C',
+            600: '#6A6A6A',
+            700: '#5A5A5A',
+            800: '#3D3D3D',
+            900: '#282828',
+        },
+    },
+    },
+  },],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/container-queries'),
+  ]
+}
+
