@@ -28,9 +28,9 @@ export const product_introducton: Array<Product> = [
 ]
 
 export const product_vod: Array<Product> = [
-    { name: '경영정보 일반', description: '', href: '/online-classroom', icon: ChartPieIcon },
-    { name: '데이터 해석 및 활용', description: '', href: '/online-classroom', icon: CursorArrowRaysIcon },
-    { name: '경영정보 시각화 디자인', description: '', href: '/online-classroom', icon: FingerPrintIcon },
+    { name: '경영정보 일반', description: '', href: '/online-classroom/1', icon: ChartPieIcon },
+    { name: '데이터 해석 및 활용', description: '', href: '/online-classroom/2', icon: CursorArrowRaysIcon },
+    { name: '경영정보 시각화 디자인', description: '', href: '/online-classroom/3', icon: FingerPrintIcon },
 ]
 
 export const product_pdf: Array<Product> = [
@@ -49,7 +49,7 @@ export const product_service: Array<Product> = [
 ]
 
 export const product_my_course: Array<Product> = [
-    { name: '필기모의시험', description: '', href: '/exam', icon: SquaresPlusIcon },
+    { name: '필기모의시험', description: '', href: '/exam-list', icon: SquaresPlusIcon },
     { name: '모의시험 성적', description: '', href: '/exam-result', icon: SquaresPlusIcon },
     { name: '학습기록 확인', description: '', href: '/my-course', icon: SquaresPlusIcon },
 ]

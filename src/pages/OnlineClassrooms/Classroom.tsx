@@ -1,8 +1,94 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import "./style.css";
+import jsonData1 from "../../data/g5_write_lecture_data_009.json";
+import jsonData2 from "../../data/g5_write_lecture_data_012.json";
+import jsonData3 from "../../data/g5_write_lecture_data_013.json";
+import { useParams } from "react-router-dom";
+
+interface ClassRoomData {
+    [key: string]: any;
+}
+
+interface CurrentRoomData {
+    id: string;
+    goal: string[];
+    links: string[];
+    title: string;
+    professor: string;
+    date: string;
+    notice: string;
+    zoom_link: string;
+    professor_email: string;
+}
+
+const classRoomNums = [
+    { id: "1", data: jsonData1 },
+    { id: "2", data: jsonData2 },
+    { id: "3", data: jsonData3 },
+];
+
+function parseYoutubeId(url: string) {
+    // "https://youtu.be/m1DcKTdf-RI"
+    const urlParts = url.split("/");
+    return urlParts[urlParts.length - 1];
+}
+
+const groupByClassRoomId = (jsonData: any) => {
+    const tableData = jsonData.find((entry: any) => entry.type === "table").data;
+    return tableData.reduce((acc: any, item: any) => {
+        const classRoomId = item.wr_id;
+        if (!acc[classRoomId]) {
+            acc[classRoomId] = [];
+        }
+        acc[classRoomId].push({
+            id: item.wr_id,
+            goal: [item.wr_1, item.wr_2, item.wr_3],
+            links: [parseYoutubeId(item.wr_4), parseYoutubeId(item.wr_5)],
+            title: item.wr_12,
+            professor: item.wr_13,
+            date: item.wr_14,
+            notice: item.wr_15,
+            zoom_link: item.wr_16,
+            professor_email: item.wr_17,
+        });
+        return acc;
+    }, {});
+};
 
 const Classroom = () => {
+    const { id } = useParams();
+    const [classRoomDatas, setClassRoomDatas] = useState<ClassRoomData>({});
+    const [currentRoom, setCurrentRoom] = useState<CurrentRoomData>({
+        id: "",
+        goal: [],
+        links: [],
+        title: "",
+        professor: "",
+        date: "",
+        notice: "",
+        zoom_link: "",
+        professor_email: "",
+    });
+    const [currentVideo, setCurrentVideo] = useState<string>("");
+
+    useEffect(() => {
+        if (!id) {
+            window.location.href = "/";
+        } else {
+            const classRoom = classRoomNums.find((classRoom) => classRoom.id === id);
+            if (!classRoom) {
+                window.location.href = "/";
+            } else {
+                const classRoomData = classRoom.data;
+                const groupedData = groupByClassRoomId(classRoomData);
+                setClassRoomDatas(groupedData);
+                const keys = Object.keys(groupedData);
+                setCurrentRoom(groupedData[keys[0]][0]);
+                setCurrentVideo(groupedData[keys[0]][0].links[0]);
+            }
+        }
+    }, []);
     return (
         <Layout>
             <div className="border-b border-purple-700 pb-16 pt-24">
@@ -17,7 +103,7 @@ const Classroom = () => {
             </div>
             <div className="flex md:flex-row flex-col items-center mb-4">
                 <div className="text-xl md:text-2xl font-bold leading-7 text-gray-900 w-full flex items-center md:mb-0 mb-4">
-                    <svg className="w-8 h-8 text-indigo-800 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-8 h-8 text-blue-800 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path
                             fill-rule="evenodd"
                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z"
@@ -32,9 +118,16 @@ const Classroom = () => {
                     </label>
                     <select
                         id="location"
-                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                        onChange={(e) => {
+                            const selectedRoom = classRoomDatas[e.target.value][0];
+                            setCurrentRoom(selectedRoom);
+                            setCurrentVideo(selectedRoom.links[0]);
+                        }}
                     >
-                        <option value="<?php echo './board.php?bo_table='.$bo_table?>">강의주차</option>
+                        {Object.keys(classRoomDatas).map((key) => {
+                            return <option value={key}>{key}</option>;
+                        })}
                     </select>
                 </div>
             </div>
@@ -42,9 +135,13 @@ const Classroom = () => {
             <div className="lectureroom_box flex lg:flex-row flex-col lg:space-x-10 lg:space-y-0 space-y-4">
                 <div className="flex sm:flex-row flex-col sm:space-x-6 sm:space-y-0 space-y-4 w-auto">
                     <div className="proinfo flex flex-col text-center bg-white rounded-lg shadow divide-y divide-gray-200 overflow-auto w-auto">
-                        <img className="w-full flex-shrink-0 mx-auto bg-black" src="<?php echo $professor_thumnail ?>" alt="" />
+                        <img
+                            className="w-full flex-shrink-0 mx-auto bg-black"
+                            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
+                            alt=""
+                        />
                         <div className="flex-1 flex flex-col px-8 pb-8">
-                            <h3 className="mt-6 text-gray-900 text-sm font-medium">이름</h3>
+                            <h3 className="mt-6 text-gray-900 text-sm font-medium">{currentRoom.professor}</h3>
                             <dl className="mt-1 flex-grow flex flex-col justify-between">
                                 <dt className="sr-only">Title</dt>
                                 <dd className="text-primaryBlue-500 text-sm">PROFESSOR</dd>
@@ -58,7 +155,7 @@ const Classroom = () => {
                             <div className="-mt-px flex divide-x divide-gray-200">
                                 <div className="w-0 flex-1 flex">
                                     <a
-                                        href="<?php echo $zoomlink?>"
+                                        href={currentRoom.zoom_link}
                                         className="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-white font-medium border border-transparent rounded-bl-lg bg-blue-500 hover:bg-blue-400"
                                         target="_blank"
                                     >
@@ -81,7 +178,7 @@ const Classroom = () => {
                                 </div>
                                 <div className="-ml-px w-0 flex-1 flex">
                                     <a
-                                        href="mailto:<?php echo $professor_email?>"
+                                        href={`mailto:${currentRoom.professor_email}`}
                                         className="relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-br-lg hover:text-gray-500"
                                     >
                                         <svg
@@ -119,7 +216,7 @@ const Classroom = () => {
                             </div>
                             <div className="">
                                 <p className="flex space-x-3">
-                                    <span className="text-sm text-gray-700">학습목표</span>
+                                    <span className="text-sm text-gray-700" dangerouslySetInnerHTML={{ __html: currentRoom.goal[0] }} />
                                 </p>
                             </div>
                         </div>
@@ -138,7 +235,7 @@ const Classroom = () => {
                             </div>
                             <div className="">
                                 <p className="flex space-x-3">
-                                    <span className="text-sm text-gray-700">학습목표</span>
+                                    <span className="text-sm text-gray-700" dangerouslySetInnerHTML={{ __html: currentRoom.goal[1] }} />
                                 </p>
                             </div>
                         </div>
@@ -157,7 +254,7 @@ const Classroom = () => {
                             </div>
                             <div className="">
                                 <p className="flex space-x-3">
-                                    <span className="text-sm text-gray-700">학습목표</span>
+                                    <span className="text-sm text-gray-700" dangerouslySetInnerHTML={{ __html: currentRoom.goal[2] }} />
                                 </p>
                             </div>
                         </div>
@@ -179,7 +276,7 @@ const Classroom = () => {
                             </div>
                             <div className="">
                                 <p className="flex space-x-3">
-                                    <span className="text-sm text-gray-700">학습과제</span>
+                                    <span className="text-sm text-gray-700" dangerouslySetInnerHTML={{ __html: currentRoom.notice }} />
                                 </p>
                             </div>
                         </div>
@@ -187,8 +284,7 @@ const Classroom = () => {
                     <span className="inline-flex rounded-md shadow-sm mt-10">
                         <button
                             type="button"
-                            onClick={() => window.location.replace("#")}
-                            className="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            className="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             강의실정보 수정
                             <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -204,8 +300,7 @@ const Classroom = () => {
                     <span className="inline-flex rounded-md shadow-sm mt-3">
                         <button
                             type="button"
-                            onClick={() => window.location.replace("#")}
-                            className="inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150"
+                            className="inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150"
                         >
                             강의일 추가
                             <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -221,7 +316,7 @@ const Classroom = () => {
             </div>
 
             <div className="text-2xl font-bold leading-7 text-gray-900 mt-4 w-full flex items-center">
-                <svg className="w-8 h-8 text-indigo-800 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-8 h-8 text-blue-800 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z"
@@ -238,7 +333,7 @@ const Classroom = () => {
                         className="shadow-lg"
                         width=""
                         height=""
-                        src="https://www.youtube.com/embed/<?php echo $link1_Array[3] ?>"
+                        src={`https://www.youtube.com/embed/${currentVideo}`}
                         frameBorder="0"
                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -248,14 +343,13 @@ const Classroom = () => {
                     <div id="journal-scroll" className="h-full overflow-auto">
                         <ul className="flex flex-row md:flex-col md:divide-y md:divide-gray-500 md:h-full">
                             <li
-                                className="flex flex-col md:flex-row items-center p-2 bg-trueGray-900 text-gray-200 hover:bg-trueGray-800 hover:text-white cursor-pointer w-full"
-                                data-link="<?php echo $link1_Array[3] ?>"
+                                className="flex flex-col md:flex-row items-center p-2 bg-gray-900 text-gray-200 hover:bg-gray-800 hover:text-white cursor-pointer w-full"
+                                data-link={currentRoom.links[0]}
+                                onClick={(e) => {
+                                    setCurrentVideo(currentRoom.links[0]);
+                                }}
                             >
-                                <img
-                                    className="md:w-1/2 w-full"
-                                    src="https://i.ytimg.com/vi_webp/<?php echo $link1_Array[3] ?>/sddefault.webp"
-                                    alt=""
-                                />
+                                <img className="md:w-1/2 w-full" src={`https://i.ytimg.com/vi_webp/${currentRoom.links[0]}/sddefault.webp`} alt="" />
                                 <div className="md:w-1/2 md:ml-3 my-2 md:my-0 w-full">
                                     <p className="md:text-lg font-medium flex items-center text-white">
                                         1교시
@@ -270,14 +364,13 @@ const Classroom = () => {
                                 </div>
                             </li>
                             <li
-                                className="flex flex-col md:flex-row items-center p-2 bg-trueGray-900 text-gray-200 hover:bg-trueGray-800 hover:text-white cursor-pointer w-auto"
-                                data-link="<?php echo $link2_Array[3] ?>"
+                                className="flex flex-col md:flex-row items-center p-2 bg-gray-900 text-gray-200 hover:bg-gray-800 hover:text-white cursor-pointer w-auto"
+                                data-link={currentRoom.links[1]}
+                                onClick={(e) => {
+                                    setCurrentVideo(currentRoom.links[1]);
+                                }}
                             >
-                                <img
-                                    className="md:w-1/2 w-full"
-                                    src="https://i.ytimg.com/vi_webp/<?php echo $link2_Array[3] ?>/sddefault.webp"
-                                    alt=""
-                                />
+                                <img className="md:w-1/2 w-full" src={`https://i.ytimg.com/vi_webp/${currentRoom.links[1]}/sddefault.webp`} alt="" />
                                 <div className="md:w-1/2 md:ml-3 my-2 md:my-0 w-full">
                                     <p className="md:text-lg font-medium flex items-center text-white">
                                         2교시
@@ -291,10 +384,7 @@ const Classroom = () => {
                                     </p>
                                 </div>
                             </li>
-                            <li
-                                className="md:flex items-center justify-center p-2 bg-trueGray-900 text-gray-200 md:w-auto w-1/5 flex-grow"
-                                data-link="<?php echo $link2_Array[3] ?>"
-                            >
+                            <li className="md:flex items-center justify-center p-2 bg-gray-900 text-gray-200 md:w-auto w-1/5 flex-grow">
                                 <img className="w-auto" src="http://capability.co.kr/theme/capability/img/logow.png" alt="" />
                             </li>
                         </ul>
@@ -310,7 +400,7 @@ const Classroom = () => {
                         <div className="w-full">
                             <ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
                                 <li className="-mb-px last:mr-0 flex-auto text-center">
-                                    <a className="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal text-white bg-indigo-600">
+                                    <a className="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal text-white bg-blue-600">
                                         <i className="fa fa-rocket text-base mr-1"></i> 출석
                                     </a>
                                 </li>
